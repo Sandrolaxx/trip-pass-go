@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:13
+    restart: unless-stopped
+    ports:
+      - 5446:5432
+    environment:
+      POSTGRES_USER: pg-test
+      POSTGRES_PASSWORD: 1329
+      POSTGRES_DB: postgres
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:
+    driver: local
