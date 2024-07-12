@@ -11,6 +11,16 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
 
+  app:
+    build: .
+    ports:
+      - 8080:8080
+    environment:
+      JOURNEY_DATABASE_PORT: ${JOURNEY_DATABASE_PORT_DOCKER:-5432}
+      JOURNEY_DATABASE_HOST: ${JOURNEY_DATABASE_HOST_DOCKER:-db}
+    depends_on:
+      - db
+
 volumes:
   db:
     driver: local

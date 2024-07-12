@@ -454,10 +454,10 @@ func GetTripsTripIDParticipantsJSON400Response(body Error) *Response {
 type ServerInterface interface {
 	// Confirms a participant on a trip.
 	// (PATCH /participants/{participantId}/confirm)
-	PatchParticipantsParticipantIDConfirm(w http.ResponseWriter, r *http.Request, participantID string) *Response
+	ParticipantConfirm(w http.ResponseWriter, r *http.Request, participantID string) *Response
 	// Create a new trip
 	// (POST /trips)
-	PostTrips(w http.ResponseWriter, r *http.Request) *Response
+	CreateTrip(w http.ResponseWriter, r *http.Request) *Response
 	// Get a trip details.
 	// (GET /trips/{tripId})
 	GetTripsTripID(w http.ResponseWriter, r *http.Request, tripID string) *Response
@@ -506,7 +506,7 @@ func (siw *ServerInterfaceWrapper) PatchParticipantsParticipantIDConfirm(w http.
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.PatchParticipantsParticipantIDConfirm(w, r, participantID)
+		resp := siw.Handler.ParticipantConfirm(w, r, participantID)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -524,7 +524,7 @@ func (siw *ServerInterfaceWrapper) PostTrips(w http.ResponseWriter, r *http.Requ
 	ctx := r.Context()
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.PostTrips(w, r)
+		resp := siw.Handler.CreateTrip(w, r)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
