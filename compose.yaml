@@ -1,4 +1,15 @@
 services:
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    volumes:
+      - mailpit:/data
+    ports:
+      - 1025:1025
+      - 8025:8025
+    environment:
+      MP_DATABASE: /data/mailpit.db
+
   db:
     image: postgres:13
     restart: unless-stopped
@@ -23,4 +34,6 @@ services:
 
 volumes:
   db:
+    driver: local
+  mailpit:
     driver: local

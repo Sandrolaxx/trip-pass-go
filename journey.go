@@ -11,6 +11,7 @@ import (
 	"time"
 	"trip-pass-go/internal/api"
 	"trip-pass-go/internal/api/spec"
+	"trip-pass-go/internal/mailer/mailpit"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -71,7 +72,7 @@ func run(ctx context.Context) error {
 	}
 
 	//Definindo interface do server
-	serverInterface := api.NewAPI(pool, logger)
+	serverInterface := api.NewAPI(pool, logger, mailpit.NewMailTrip(pool))
 
 	//Criando roteamento
 	router := chi.NewMux()

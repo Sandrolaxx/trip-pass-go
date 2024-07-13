@@ -25,8 +25,8 @@ import (
 
 // CreateActivityRequest defines model for CreateActivityRequest.
 type CreateActivityRequest struct {
-	OccursAt time.Time `json:"occurs_at"`
-	Title    string    `json:"title"`
+	Date  time.Time `json:"date" validate:"required"`
+	Title string    `json:"title" validate:"required"`
 }
 
 // CreateActivityResponse defines model for CreateActivityResponse.
@@ -36,8 +36,8 @@ type CreateActivityResponse struct {
 
 // CreateLinkRequest defines model for CreateLinkRequest.
 type CreateLinkRequest struct {
-	Title string `json:"title"`
-	URL   string `json:"url"`
+	Title string `json:"title" validate:"required"`
+	URL   string `json:"url" validate:"required,url"`
 }
 
 // CreateLinkResponse defines model for CreateLinkResponse.
@@ -47,12 +47,12 @@ type CreateLinkResponse struct {
 
 // CreateTripRequest defines model for CreateTripRequest.
 type CreateTripRequest struct {
-	Destination    string                `json:"destination"`
-	EmailsToInvite []openapi_types.Email `json:"emails_to_invite"`
-	EndsAt         time.Time             `json:"ends_at"`
-	OwnerEmail     openapi_types.Email   `json:"owner_email"`
-	OwnerName      string                `json:"owner_name"`
-	StartsAt       time.Time             `json:"starts_at"`
+	Destination  string                `json:"destination" validate:"required,min=4"`
+	EndAt        time.Time             `json:"endAt" validate:"required"`
+	GuestsEmails []openapi_types.Email `json:"guestsEmails" validate:"required,dive,email"`//email é um array obrigatório, que utilizamos a diretiva dive, para mergulhar na estrutura e então validar cada e-mail
+	OwnerEmail   openapi_types.Email   `json:"ownerEmail" validate:"required,email"`
+	OwnerName    string                `json:"ownerName" validate:"required"`
+	StartAt      time.Time             `json:"startAt" validate:"required"`
 }
 
 // CreateTripResponse defines model for CreateTripResponse.
@@ -84,9 +84,9 @@ type GetTripActivitiesResponse struct {
 
 // GetTripActivitiesResponseInnerArray defines model for GetTripActivitiesResponseInnerArray.
 type GetTripActivitiesResponseInnerArray struct {
-	ID       string    `json:"id"`
-	OccursAt time.Time `json:"occurs_at"`
-	Title    string    `json:"title"`
+	Date  time.Time `json:"date"`
+	ID    string    `json:"id"`
+	Title string    `json:"title"`
 }
 
 // GetTripActivitiesResponseOuterArray defines model for GetTripActivitiesResponseOuterArray.
@@ -102,11 +102,11 @@ type GetTripDetailsResponse struct {
 
 // GetTripDetailsResponseTripObj defines model for GetTripDetailsResponseTripObj.
 type GetTripDetailsResponseTripObj struct {
+	Confirmed   bool      `json:"confirmed"`
 	Destination string    `json:"destination"`
-	EndsAt      time.Time `json:"ends_at"`
+	EndAt       time.Time `json:"endAt"`
 	ID          string    `json:"id"`
-	IsConfirmed bool      `json:"is_confirmed"`
-	StartsAt    time.Time `json:"starts_at"`
+	StartAt     time.Time `json:"startAt"`
 }
 
 // GetTripParticipantsResponse defines model for GetTripParticipantsResponse.
@@ -116,38 +116,88 @@ type GetTripParticipantsResponse struct {
 
 // GetTripParticipantsResponseArray defines model for GetTripParticipantsResponseArray.
 type GetTripParticipantsResponseArray struct {
-	Email       openapi_types.Email `json:"email"`
-	ID          string              `json:"id"`
-	IsConfirmed bool                `json:"is_confirmed"`
-	Name        *string             `json:"name"`
+	Confirmed bool                `json:"confirmed"`
+	Email     openapi_types.Email `json:"email"`
+	ID        string              `json:"id"`
+	Name      *string             `json:"name"`
 }
 
 // InviteParticipantRequest defines model for InviteParticipantRequest.
 type InviteParticipantRequest struct {
-	Email openapi_types.Email `json:"email"`
+	Email openapi_types.Email `json:"email" validate:"required,email"`
 }
 
 // UpdateTripRequest defines model for UpdateTripRequest.
 type UpdateTripRequest struct {
-	Destination string    `json:"destination"`
-	EndsAt      time.Time `json:"ends_at"`
-	StartsAt    time.Time `json:"starts_at"`
+	Destination string    `json:"destination" validate:"required,min=4"`
+	EndAt       time.Time `json:"endAt" validate:"required"`
+	StartAt     time.Time `json:"startAt" validate:"required"`
+}
+
+// PatchParticipantsConfirmParams defines parameters for PatchParticipantsConfirm.
+type PatchParticipantsConfirmParams struct {
+	ID string `json:"id"`
+}
+
+// GetTripsParams defines parameters for GetTrips.
+type GetTripsParams struct {
+	ID string `json:"id"`
 }
 
 // PostTripsJSONBody defines parameters for PostTrips.
 type PostTripsJSONBody CreateTripRequest
 
-// PutTripsTripIDJSONBody defines parameters for PutTripsTripID.
-type PutTripsTripIDJSONBody UpdateTripRequest
+// PutTripsJSONBody defines parameters for PutTrips.
+type PutTripsJSONBody UpdateTripRequest
 
-// PostTripsTripIDActivitiesJSONBody defines parameters for PostTripsTripIDActivities.
-type PostTripsTripIDActivitiesJSONBody CreateActivityRequest
+// PutTripsParams defines parameters for PutTrips.
+type PutTripsParams struct {
+	ID string `json:"id"`
+}
 
-// PostTripsTripIDInvitesJSONBody defines parameters for PostTripsTripIDInvites.
-type PostTripsTripIDInvitesJSONBody InviteParticipantRequest
+// GetTripsActivitiesParams defines parameters for GetTripsActivities.
+type GetTripsActivitiesParams struct {
+	ID string `json:"id"`
+}
 
-// PostTripsTripIDLinksJSONBody defines parameters for PostTripsTripIDLinks.
-type PostTripsTripIDLinksJSONBody CreateLinkRequest
+// PostTripsActivitiesJSONBody defines parameters for PostTripsActivities.
+type PostTripsActivitiesJSONBody CreateActivityRequest
+
+// PostTripsActivitiesParams defines parameters for PostTripsActivities.
+type PostTripsActivitiesParams struct {
+	ID string `json:"id"`
+}
+
+// GetTripsConfirmParams defines parameters for GetTripsConfirm.
+type GetTripsConfirmParams struct {
+	ID string `json:"id"`
+}
+
+// PostTripsInvitesJSONBody defines parameters for PostTripsInvites.
+type PostTripsInvitesJSONBody InviteParticipantRequest
+
+// PostTripsInvitesParams defines parameters for PostTripsInvites.
+type PostTripsInvitesParams struct {
+	TripID string `json:"tripId"`
+}
+
+// GetTripsLinksParams defines parameters for GetTripsLinks.
+type GetTripsLinksParams struct {
+	ID string `json:"id"`
+}
+
+// PostTripsLinksJSONBody defines parameters for PostTripsLinks.
+type PostTripsLinksJSONBody CreateLinkRequest
+
+// PostTripsLinksParams defines parameters for PostTripsLinks.
+type PostTripsLinksParams struct {
+	ID string `json:"id"`
+}
+
+// GetTripsParticipantsParams defines parameters for GetTripsParticipants.
+type GetTripsParticipantsParams struct {
+	ID string `json:"id"`
+}
 
 // PostTripsJSONRequestBody defines body for PostTrips for application/json ContentType.
 type PostTripsJSONRequestBody PostTripsJSONBody
@@ -157,35 +207,35 @@ func (PostTripsJSONRequestBody) Bind(*http.Request) error {
 	return nil
 }
 
-// PutTripsTripIDJSONRequestBody defines body for PutTripsTripID for application/json ContentType.
-type PutTripsTripIDJSONRequestBody PutTripsTripIDJSONBody
+// PutTripsJSONRequestBody defines body for PutTrips for application/json ContentType.
+type PutTripsJSONRequestBody PutTripsJSONBody
 
 // Bind implements render.Binder.
-func (PutTripsTripIDJSONRequestBody) Bind(*http.Request) error {
+func (PutTripsJSONRequestBody) Bind(*http.Request) error {
 	return nil
 }
 
-// PostTripsTripIDActivitiesJSONRequestBody defines body for PostTripsTripIDActivities for application/json ContentType.
-type PostTripsTripIDActivitiesJSONRequestBody PostTripsTripIDActivitiesJSONBody
+// PostTripsActivitiesJSONRequestBody defines body for PostTripsActivities for application/json ContentType.
+type PostTripsActivitiesJSONRequestBody PostTripsActivitiesJSONBody
 
 // Bind implements render.Binder.
-func (PostTripsTripIDActivitiesJSONRequestBody) Bind(*http.Request) error {
+func (PostTripsActivitiesJSONRequestBody) Bind(*http.Request) error {
 	return nil
 }
 
-// PostTripsTripIDInvitesJSONRequestBody defines body for PostTripsTripIDInvites for application/json ContentType.
-type PostTripsTripIDInvitesJSONRequestBody PostTripsTripIDInvitesJSONBody
+// PostTripsInvitesJSONRequestBody defines body for PostTripsInvites for application/json ContentType.
+type PostTripsInvitesJSONRequestBody PostTripsInvitesJSONBody
 
 // Bind implements render.Binder.
-func (PostTripsTripIDInvitesJSONRequestBody) Bind(*http.Request) error {
+func (PostTripsInvitesJSONRequestBody) Bind(*http.Request) error {
 	return nil
 }
 
-// PostTripsTripIDLinksJSONRequestBody defines body for PostTripsTripIDLinks for application/json ContentType.
-type PostTripsTripIDLinksJSONRequestBody PostTripsTripIDLinksJSONBody
+// PostTripsLinksJSONRequestBody defines body for PostTripsLinks for application/json ContentType.
+type PostTripsLinksJSONRequestBody PostTripsLinksJSONBody
 
 // Bind implements render.Binder.
-func (PostTripsTripIDLinksJSONRequestBody) Bind(*http.Request) error {
+func (PostTripsLinksJSONRequestBody) Bind(*http.Request) error {
 	return nil
 }
 
@@ -230,9 +280,9 @@ func (resp *Response) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.Encode(resp.body)
 }
 
-// PatchParticipantsParticipantIDConfirmJSON204Response is a constructor method for a PatchParticipantsParticipantIDConfirm response.
+// PatchParticipantsConfirmJSON204Response is a constructor method for a PatchParticipantsConfirm response.
 // A *Response is returned with the configured status code and content type from the spec.
-func PatchParticipantsParticipantIDConfirmJSON204Response(body interface{}) *Response {
+func PatchParticipantsConfirmJSON204Response(body interface{}) *Response {
 	return &Response{
 		body:        body,
 		Code:        204,
@@ -240,9 +290,29 @@ func PatchParticipantsParticipantIDConfirmJSON204Response(body interface{}) *Res
 	}
 }
 
-// PatchParticipantsParticipantIDConfirmJSON400Response is a constructor method for a PatchParticipantsParticipantIDConfirm response.
+// PatchParticipantsConfirmJSON400Response is a constructor method for a PatchParticipantsConfirm response.
 // A *Response is returned with the configured status code and content type from the spec.
-func PatchParticipantsParticipantIDConfirmJSON400Response(body Error) *Response {
+func PatchParticipantsConfirmJSON400Response(body Error) *Response {
+	return &Response{
+		body:        body,
+		Code:        400,
+		contentType: "application/json",
+	}
+}
+
+// GetTripsJSON200Response is a constructor method for a GetTrips response.
+// A *Response is returned with the configured status code and content type from the spec.
+func GetTripsJSON200Response(body GetTripDetailsResponse) *Response {
+	return &Response{
+		body:        body,
+		Code:        200,
+		contentType: "application/json",
+	}
+}
+
+// GetTripsJSON400Response is a constructor method for a GetTrips response.
+// A *Response is returned with the configured status code and content type from the spec.
+func GetTripsJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        400,
@@ -270,29 +340,9 @@ func PostTripsJSON400Response(body Error) *Response {
 	}
 }
 
-// GetTripsTripIDJSON200Response is a constructor method for a GetTripsTripID response.
+// PutTripsJSON204Response is a constructor method for a PutTrips response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDJSON200Response(body GetTripDetailsResponse) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// GetTripsTripIDJSON400Response is a constructor method for a GetTripsTripID response.
-// A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDJSON400Response(body Error) *Response {
-	return &Response{
-		body:        body,
-		Code:        400,
-		contentType: "application/json",
-	}
-}
-
-// PutTripsTripIDJSON204Response is a constructor method for a PutTripsTripID response.
-// A *Response is returned with the configured status code and content type from the spec.
-func PutTripsTripIDJSON204Response(body interface{}) *Response {
+func PutTripsJSON204Response(body interface{}) *Response {
 	return &Response{
 		body:        body,
 		Code:        204,
@@ -300,9 +350,9 @@ func PutTripsTripIDJSON204Response(body interface{}) *Response {
 	}
 }
 
-// PutTripsTripIDJSON400Response is a constructor method for a PutTripsTripID response.
+// PutTripsJSON400Response is a constructor method for a PutTrips response.
 // A *Response is returned with the configured status code and content type from the spec.
-func PutTripsTripIDJSON400Response(body Error) *Response {
+func PutTripsJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        400,
@@ -310,9 +360,9 @@ func PutTripsTripIDJSON400Response(body Error) *Response {
 	}
 }
 
-// GetTripsTripIDActivitiesJSON200Response is a constructor method for a GetTripsTripIDActivities response.
+// GetTripsActivitiesJSON200Response is a constructor method for a GetTripsActivities response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDActivitiesJSON200Response(body GetTripActivitiesResponse) *Response {
+func GetTripsActivitiesJSON200Response(body GetTripActivitiesResponse) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -320,9 +370,9 @@ func GetTripsTripIDActivitiesJSON200Response(body GetTripActivitiesResponse) *Re
 	}
 }
 
-// GetTripsTripIDActivitiesJSON400Response is a constructor method for a GetTripsTripIDActivities response.
+// GetTripsActivitiesJSON400Response is a constructor method for a GetTripsActivities response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDActivitiesJSON400Response(body Error) *Response {
+func GetTripsActivitiesJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        400,
@@ -330,9 +380,9 @@ func GetTripsTripIDActivitiesJSON400Response(body Error) *Response {
 	}
 }
 
-// PostTripsTripIDActivitiesJSON201Response is a constructor method for a PostTripsTripIDActivities response.
+// PostTripsActivitiesJSON201Response is a constructor method for a PostTripsActivities response.
 // A *Response is returned with the configured status code and content type from the spec.
-func PostTripsTripIDActivitiesJSON201Response(body CreateActivityResponse) *Response {
+func PostTripsActivitiesJSON201Response(body CreateActivityResponse) *Response {
 	return &Response{
 		body:        body,
 		Code:        201,
@@ -340,9 +390,9 @@ func PostTripsTripIDActivitiesJSON201Response(body CreateActivityResponse) *Resp
 	}
 }
 
-// PostTripsTripIDActivitiesJSON400Response is a constructor method for a PostTripsTripIDActivities response.
+// PostTripsActivitiesJSON400Response is a constructor method for a PostTripsActivities response.
 // A *Response is returned with the configured status code and content type from the spec.
-func PostTripsTripIDActivitiesJSON400Response(body Error) *Response {
+func PostTripsActivitiesJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        400,
@@ -350,9 +400,9 @@ func PostTripsTripIDActivitiesJSON400Response(body Error) *Response {
 	}
 }
 
-// GetTripsTripIDConfirmJSON204Response is a constructor method for a GetTripsTripIDConfirm response.
+// GetTripsConfirmJSON204Response is a constructor method for a GetTripsConfirm response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDConfirmJSON204Response(body interface{}) *Response {
+func GetTripsConfirmJSON204Response(body interface{}) *Response {
 	return &Response{
 		body:        body,
 		Code:        204,
@@ -360,9 +410,9 @@ func GetTripsTripIDConfirmJSON204Response(body interface{}) *Response {
 	}
 }
 
-// GetTripsTripIDConfirmJSON400Response is a constructor method for a GetTripsTripIDConfirm response.
+// GetTripsConfirmJSON400Response is a constructor method for a GetTripsConfirm response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDConfirmJSON400Response(body Error) *Response {
+func GetTripsConfirmJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        400,
@@ -370,9 +420,9 @@ func GetTripsTripIDConfirmJSON400Response(body Error) *Response {
 	}
 }
 
-// PostTripsTripIDInvitesJSON201Response is a constructor method for a PostTripsTripIDInvites response.
+// PostTripsInvitesJSON201Response is a constructor method for a PostTripsInvites response.
 // A *Response is returned with the configured status code and content type from the spec.
-func PostTripsTripIDInvitesJSON201Response(body interface{}) *Response {
+func PostTripsInvitesJSON201Response(body interface{}) *Response {
 	return &Response{
 		body:        body,
 		Code:        201,
@@ -380,9 +430,9 @@ func PostTripsTripIDInvitesJSON201Response(body interface{}) *Response {
 	}
 }
 
-// PostTripsTripIDInvitesJSON400Response is a constructor method for a PostTripsTripIDInvites response.
+// PostTripsInvitesJSON400Response is a constructor method for a PostTripsInvites response.
 // A *Response is returned with the configured status code and content type from the spec.
-func PostTripsTripIDInvitesJSON400Response(body Error) *Response {
+func PostTripsInvitesJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        400,
@@ -390,9 +440,9 @@ func PostTripsTripIDInvitesJSON400Response(body Error) *Response {
 	}
 }
 
-// GetTripsTripIDLinksJSON200Response is a constructor method for a GetTripsTripIDLinks response.
+// GetTripsLinksJSON200Response is a constructor method for a GetTripsLinks response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDLinksJSON200Response(body GetLinksResponse) *Response {
+func GetTripsLinksJSON200Response(body GetLinksResponse) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -400,9 +450,9 @@ func GetTripsTripIDLinksJSON200Response(body GetLinksResponse) *Response {
 	}
 }
 
-// GetTripsTripIDLinksJSON400Response is a constructor method for a GetTripsTripIDLinks response.
+// GetTripsLinksJSON400Response is a constructor method for a GetTripsLinks response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDLinksJSON400Response(body Error) *Response {
+func GetTripsLinksJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        400,
@@ -410,9 +460,9 @@ func GetTripsTripIDLinksJSON400Response(body Error) *Response {
 	}
 }
 
-// PostTripsTripIDLinksJSON201Response is a constructor method for a PostTripsTripIDLinks response.
+// PostTripsLinksJSON201Response is a constructor method for a PostTripsLinks response.
 // A *Response is returned with the configured status code and content type from the spec.
-func PostTripsTripIDLinksJSON201Response(body CreateLinkResponse) *Response {
+func PostTripsLinksJSON201Response(body CreateLinkResponse) *Response {
 	return &Response{
 		body:        body,
 		Code:        201,
@@ -420,9 +470,9 @@ func PostTripsTripIDLinksJSON201Response(body CreateLinkResponse) *Response {
 	}
 }
 
-// PostTripsTripIDLinksJSON400Response is a constructor method for a PostTripsTripIDLinks response.
+// PostTripsLinksJSON400Response is a constructor method for a PostTripsLinks response.
 // A *Response is returned with the configured status code and content type from the spec.
-func PostTripsTripIDLinksJSON400Response(body Error) *Response {
+func PostTripsLinksJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        400,
@@ -430,9 +480,9 @@ func PostTripsTripIDLinksJSON400Response(body Error) *Response {
 	}
 }
 
-// GetTripsTripIDParticipantsJSON200Response is a constructor method for a GetTripsTripIDParticipants response.
+// GetTripsParticipantsJSON200Response is a constructor method for a GetTripsParticipants response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDParticipantsJSON200Response(body GetTripParticipantsResponse) *Response {
+func GetTripsParticipantsJSON200Response(body GetTripParticipantsResponse) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -440,9 +490,9 @@ func GetTripsTripIDParticipantsJSON200Response(body GetTripParticipantsResponse)
 	}
 }
 
-// GetTripsTripIDParticipantsJSON400Response is a constructor method for a GetTripsTripIDParticipants response.
+// GetTripsParticipantsJSON400Response is a constructor method for a GetTripsParticipants response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetTripsTripIDParticipantsJSON400Response(body Error) *Response {
+func GetTripsParticipantsJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        400,
@@ -453,38 +503,38 @@ func GetTripsTripIDParticipantsJSON400Response(body Error) *Response {
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Confirms a participant on a trip.
-	// (PATCH /participants/{participantId}/confirm)
-	ParticipantConfirm(w http.ResponseWriter, r *http.Request, participantID string) *Response
+	// (PATCH /participants/confirm)
+	PatchParticipantsConfirm(w http.ResponseWriter, r *http.Request, params PatchParticipantsConfirmParams) *Response
+	// Get a trip details.
+	// (GET /trips)
+	GetTrips(w http.ResponseWriter, r *http.Request, params GetTripsParams) *Response
 	// Create a new trip
 	// (POST /trips)
-	CreateTrip(w http.ResponseWriter, r *http.Request) *Response
-	// Get a trip details.
-	// (GET /trips/{tripId})
-	GetTripsTripID(w http.ResponseWriter, r *http.Request, tripID string) *Response
+	PostTrips(w http.ResponseWriter, r *http.Request) *Response
 	// Update a trip.
-	// (PUT /trips/{tripId})
-	PutTripsTripID(w http.ResponseWriter, r *http.Request, tripID string) *Response
+	// (PUT /trips)
+	PutTrips(w http.ResponseWriter, r *http.Request, params PutTripsParams) *Response
 	// Get a trip activities.
-	// (GET /trips/{tripId}/activities)
-	GetTripsTripIDActivities(w http.ResponseWriter, r *http.Request, tripID string) *Response
+	// (GET /trips/activities)
+	GetTripsActivities(w http.ResponseWriter, r *http.Request, params GetTripsActivitiesParams) *Response
 	// Create a trip activity.
-	// (POST /trips/{tripId}/activities)
-	PostTripsTripIDActivities(w http.ResponseWriter, r *http.Request, tripID string) *Response
+	// (POST /trips/activities)
+	PostTripsActivities(w http.ResponseWriter, r *http.Request, params PostTripsActivitiesParams) *Response
 	// Confirm a trip and send e-mail invitations.
-	// (GET /trips/{tripId}/confirm)
-	GetTripsTripIDConfirm(w http.ResponseWriter, r *http.Request, tripID string) *Response
+	// (GET /trips/confirm)
+	GetTripsConfirm(w http.ResponseWriter, r *http.Request, params GetTripsConfirmParams) *Response
 	// Invite someone to the trip.
-	// (POST /trips/{tripId}/invites)
-	PostTripsTripIDInvites(w http.ResponseWriter, r *http.Request, tripID string) *Response
+	// (POST /trips/invites)
+	PostTripsInvites(w http.ResponseWriter, r *http.Request, params PostTripsInvitesParams) *Response
 	// Get a trip links.
-	// (GET /trips/{tripId}/links)
-	GetTripsTripIDLinks(w http.ResponseWriter, r *http.Request, tripID string) *Response
+	// (GET /trips/links)
+	GetTripsLinks(w http.ResponseWriter, r *http.Request, params GetTripsLinksParams) *Response
 	// Create a trip link.
-	// (POST /trips/{tripId}/links)
-	PostTripsTripIDLinks(w http.ResponseWriter, r *http.Request, tripID string) *Response
+	// (POST /trips/links)
+	PostTripsLinks(w http.ResponseWriter, r *http.Request, params PostTripsLinksParams) *Response
 	// Get a trip participants.
-	// (GET /trips/{tripId}/participants)
-	GetTripsTripIDParticipants(w http.ResponseWriter, r *http.Request, tripID string) *Response
+	// (GET /trips/participants)
+	GetTripsParticipants(w http.ResponseWriter, r *http.Request, params GetTripsParticipantsParams) *Response
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -493,20 +543,82 @@ type ServerInterfaceWrapper struct {
 	ErrorHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
 }
 
-// PatchParticipantsParticipantIDConfirm operation middleware
-func (siw *ServerInterfaceWrapper) PatchParticipantsParticipantIDConfirm(w http.ResponseWriter, r *http.Request) {
+// PatchParticipantsConfirm operation middleware
+func (siw *ServerInterfaceWrapper) PatchParticipantsConfirm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// ------------- Path parameter "participantId" -------------
-	var participantID string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PatchParticipantsConfirmParams
 
-	if err := runtime.BindStyledParameter("simple", false, "participantId", chi.URLParam(r, "participantId"), &participantID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "participantId"})
+	headers := r.Header
+
+	// ------------- Required header parameter "id" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("id")]; found {
+		var ID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "id"})
+			return
+		}
+
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationHeader, valueList[0], &ID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "id"})
+			return
+		}
+
+		params.ID = ID
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"id"})
 		return
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.ParticipantConfirm(w, r, participantID)
+		resp := siw.Handler.PatchParticipantsConfirm(w, r, params)
+		if resp != nil {
+			if resp.body != nil {
+				render.Render(w, r, resp)
+			} else {
+				w.WriteHeader(resp.Code)
+			}
+		}
+	})
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetTrips operation middleware
+func (siw *ServerInterfaceWrapper) GetTrips(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetTripsParams
+
+	headers := r.Header
+
+	// ------------- Required header parameter "id" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("id")]; found {
+		var ID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "id"})
+			return
+		}
+
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationHeader, valueList[0], &ID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "id"})
+			return
+		}
+
+		params.ID = ID
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"id"})
+		return
+	}
+
+	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		resp := siw.Handler.GetTrips(w, r, params)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -524,7 +636,7 @@ func (siw *ServerInterfaceWrapper) PostTrips(w http.ResponseWriter, r *http.Requ
 	ctx := r.Context()
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.CreateTrip(w, r)
+		resp := siw.Handler.PostTrips(w, r)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -537,20 +649,38 @@ func (siw *ServerInterfaceWrapper) PostTrips(w http.ResponseWriter, r *http.Requ
 	handler(w, r.WithContext(ctx))
 }
 
-// GetTripsTripID operation middleware
-func (siw *ServerInterfaceWrapper) GetTripsTripID(w http.ResponseWriter, r *http.Request) {
+// PutTrips operation middleware
+func (siw *ServerInterfaceWrapper) PutTrips(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// ------------- Path parameter "tripId" -------------
-	var tripID string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PutTripsParams
 
-	if err := runtime.BindStyledParameter("simple", false, "tripId", chi.URLParam(r, "tripId"), &tripID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
+	headers := r.Header
+
+	// ------------- Required header parameter "id" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("id")]; found {
+		var ID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "id"})
+			return
+		}
+
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationHeader, valueList[0], &ID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "id"})
+			return
+		}
+
+		params.ID = ID
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"id"})
 		return
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.GetTripsTripID(w, r, tripID)
+		resp := siw.Handler.PutTrips(w, r, params)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -563,20 +693,38 @@ func (siw *ServerInterfaceWrapper) GetTripsTripID(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
-// PutTripsTripID operation middleware
-func (siw *ServerInterfaceWrapper) PutTripsTripID(w http.ResponseWriter, r *http.Request) {
+// GetTripsActivities operation middleware
+func (siw *ServerInterfaceWrapper) GetTripsActivities(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// ------------- Path parameter "tripId" -------------
-	var tripID string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetTripsActivitiesParams
 
-	if err := runtime.BindStyledParameter("simple", false, "tripId", chi.URLParam(r, "tripId"), &tripID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
+	headers := r.Header
+
+	// ------------- Required header parameter "id" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("id")]; found {
+		var ID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "id"})
+			return
+		}
+
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationHeader, valueList[0], &ID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "id"})
+			return
+		}
+
+		params.ID = ID
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"id"})
 		return
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.PutTripsTripID(w, r, tripID)
+		resp := siw.Handler.GetTripsActivities(w, r, params)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -589,20 +737,38 @@ func (siw *ServerInterfaceWrapper) PutTripsTripID(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
-// GetTripsTripIDActivities operation middleware
-func (siw *ServerInterfaceWrapper) GetTripsTripIDActivities(w http.ResponseWriter, r *http.Request) {
+// PostTripsActivities operation middleware
+func (siw *ServerInterfaceWrapper) PostTripsActivities(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// ------------- Path parameter "tripId" -------------
-	var tripID string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PostTripsActivitiesParams
 
-	if err := runtime.BindStyledParameter("simple", false, "tripId", chi.URLParam(r, "tripId"), &tripID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
+	headers := r.Header
+
+	// ------------- Required header parameter "id" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("id")]; found {
+		var ID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "id"})
+			return
+		}
+
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationHeader, valueList[0], &ID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "id"})
+			return
+		}
+
+		params.ID = ID
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"id"})
 		return
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.GetTripsTripIDActivities(w, r, tripID)
+		resp := siw.Handler.PostTripsActivities(w, r, params)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -615,20 +781,38 @@ func (siw *ServerInterfaceWrapper) GetTripsTripIDActivities(w http.ResponseWrite
 	handler(w, r.WithContext(ctx))
 }
 
-// PostTripsTripIDActivities operation middleware
-func (siw *ServerInterfaceWrapper) PostTripsTripIDActivities(w http.ResponseWriter, r *http.Request) {
+// GetTripsConfirm operation middleware
+func (siw *ServerInterfaceWrapper) GetTripsConfirm(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// ------------- Path parameter "tripId" -------------
-	var tripID string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetTripsConfirmParams
 
-	if err := runtime.BindStyledParameter("simple", false, "tripId", chi.URLParam(r, "tripId"), &tripID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
+	headers := r.Header
+
+	// ------------- Required header parameter "id" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("id")]; found {
+		var ID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "id"})
+			return
+		}
+
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationHeader, valueList[0], &ID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "id"})
+			return
+		}
+
+		params.ID = ID
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"id"})
 		return
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.PostTripsTripIDActivities(w, r, tripID)
+		resp := siw.Handler.GetTripsConfirm(w, r, params)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -641,20 +825,38 @@ func (siw *ServerInterfaceWrapper) PostTripsTripIDActivities(w http.ResponseWrit
 	handler(w, r.WithContext(ctx))
 }
 
-// GetTripsTripIDConfirm operation middleware
-func (siw *ServerInterfaceWrapper) GetTripsTripIDConfirm(w http.ResponseWriter, r *http.Request) {
+// PostTripsInvites operation middleware
+func (siw *ServerInterfaceWrapper) PostTripsInvites(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// ------------- Path parameter "tripId" -------------
-	var tripID string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PostTripsInvitesParams
 
-	if err := runtime.BindStyledParameter("simple", false, "tripId", chi.URLParam(r, "tripId"), &tripID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
+	headers := r.Header
+
+	// ------------- Required header parameter "tripId" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("tripId")]; found {
+		var TripID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "tripId"})
+			return
+		}
+
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "tripId", runtime.ParamLocationHeader, valueList[0], &TripID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
+			return
+		}
+
+		params.TripID = TripID
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"tripId"})
 		return
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.GetTripsTripIDConfirm(w, r, tripID)
+		resp := siw.Handler.PostTripsInvites(w, r, params)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -667,20 +869,38 @@ func (siw *ServerInterfaceWrapper) GetTripsTripIDConfirm(w http.ResponseWriter, 
 	handler(w, r.WithContext(ctx))
 }
 
-// PostTripsTripIDInvites operation middleware
-func (siw *ServerInterfaceWrapper) PostTripsTripIDInvites(w http.ResponseWriter, r *http.Request) {
+// GetTripsLinks operation middleware
+func (siw *ServerInterfaceWrapper) GetTripsLinks(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// ------------- Path parameter "tripId" -------------
-	var tripID string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetTripsLinksParams
 
-	if err := runtime.BindStyledParameter("simple", false, "tripId", chi.URLParam(r, "tripId"), &tripID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
+	headers := r.Header
+
+	// ------------- Required header parameter "id" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("id")]; found {
+		var ID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "id"})
+			return
+		}
+
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationHeader, valueList[0], &ID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "id"})
+			return
+		}
+
+		params.ID = ID
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"id"})
 		return
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.PostTripsTripIDInvites(w, r, tripID)
+		resp := siw.Handler.GetTripsLinks(w, r, params)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -693,20 +913,38 @@ func (siw *ServerInterfaceWrapper) PostTripsTripIDInvites(w http.ResponseWriter,
 	handler(w, r.WithContext(ctx))
 }
 
-// GetTripsTripIDLinks operation middleware
-func (siw *ServerInterfaceWrapper) GetTripsTripIDLinks(w http.ResponseWriter, r *http.Request) {
+// PostTripsLinks operation middleware
+func (siw *ServerInterfaceWrapper) PostTripsLinks(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// ------------- Path parameter "tripId" -------------
-	var tripID string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PostTripsLinksParams
 
-	if err := runtime.BindStyledParameter("simple", false, "tripId", chi.URLParam(r, "tripId"), &tripID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
+	headers := r.Header
+
+	// ------------- Required header parameter "id" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("id")]; found {
+		var ID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "id"})
+			return
+		}
+
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationHeader, valueList[0], &ID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "id"})
+			return
+		}
+
+		params.ID = ID
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"id"})
 		return
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.GetTripsTripIDLinks(w, r, tripID)
+		resp := siw.Handler.PostTripsLinks(w, r, params)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -719,46 +957,38 @@ func (siw *ServerInterfaceWrapper) GetTripsTripIDLinks(w http.ResponseWriter, r 
 	handler(w, r.WithContext(ctx))
 }
 
-// PostTripsTripIDLinks operation middleware
-func (siw *ServerInterfaceWrapper) PostTripsTripIDLinks(w http.ResponseWriter, r *http.Request) {
+// GetTripsParticipants operation middleware
+func (siw *ServerInterfaceWrapper) GetTripsParticipants(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// ------------- Path parameter "tripId" -------------
-	var tripID string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetTripsParticipantsParams
 
-	if err := runtime.BindStyledParameter("simple", false, "tripId", chi.URLParam(r, "tripId"), &tripID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
-		return
-	}
+	headers := r.Header
 
-	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.PostTripsTripIDLinks(w, r, tripID)
-		if resp != nil {
-			if resp.body != nil {
-				render.Render(w, r, resp)
-			} else {
-				w.WriteHeader(resp.Code)
-			}
+	// ------------- Required header parameter "id" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("id")]; found {
+		var ID string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{n, "id"})
+			return
 		}
-	})
 
-	handler(w, r.WithContext(ctx))
-}
+		if err := runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationHeader, valueList[0], &ID); err != nil {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "id"})
+			return
+		}
 
-// GetTripsTripIDParticipants operation middleware
-func (siw *ServerInterfaceWrapper) GetTripsTripIDParticipants(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+		params.ID = ID
 
-	// ------------- Path parameter "tripId" -------------
-	var tripID string
-
-	if err := runtime.BindStyledParameter("simple", false, "tripId", chi.URLParam(r, "tripId"), &tripID); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "tripId"})
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredHeaderError{"id"})
 		return
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.GetTripsTripIDParticipants(w, r, tripID)
+		resp := siw.Handler.GetTripsParticipants(w, r, params)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -886,17 +1116,17 @@ func Handler(si ServerInterface, opts ...ServerOption) http.Handler {
 	}
 
 	r.Route(options.BaseURL, func(r chi.Router) {
-		r.Patch("/participants/{participantId}/confirm", wrapper.PatchParticipantsParticipantIDConfirm)
+		r.Patch("/participants/confirm", wrapper.PatchParticipantsConfirm)
+		r.Get("/trips", wrapper.GetTrips)
 		r.Post("/trips", wrapper.PostTrips)
-		r.Get("/trips/{tripId}", wrapper.GetTripsTripID)
-		r.Put("/trips/{tripId}", wrapper.PutTripsTripID)
-		r.Get("/trips/{tripId}/activities", wrapper.GetTripsTripIDActivities)
-		r.Post("/trips/{tripId}/activities", wrapper.PostTripsTripIDActivities)
-		r.Get("/trips/{tripId}/confirm", wrapper.GetTripsTripIDConfirm)
-		r.Post("/trips/{tripId}/invites", wrapper.PostTripsTripIDInvites)
-		r.Get("/trips/{tripId}/links", wrapper.GetTripsTripIDLinks)
-		r.Post("/trips/{tripId}/links", wrapper.PostTripsTripIDLinks)
-		r.Get("/trips/{tripId}/participants", wrapper.GetTripsTripIDParticipants)
+		r.Put("/trips", wrapper.PutTrips)
+		r.Get("/trips/activities", wrapper.GetTripsActivities)
+		r.Post("/trips/activities", wrapper.PostTripsActivities)
+		r.Get("/trips/confirm", wrapper.GetTripsConfirm)
+		r.Post("/trips/invites", wrapper.PostTripsInvites)
+		r.Get("/trips/links", wrapper.GetTripsLinks)
+		r.Post("/trips/links", wrapper.PostTripsLinks)
+		r.Get("/trips/participants", wrapper.GetTripsParticipants)
 	})
 	return r
 }
@@ -922,29 +1152,30 @@ func WithErrorHandler(handler func(w http.ResponseWriter, r *http.Request, err e
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/+xazW4bNxB+FYLtcWU5rU8L9OD8IHARJEaQoofAB2p3JNHeJTfkrBzB0NP00FOPfQK/",
+	"WEFyJXF/JO2urChyerJFkTPD+Wa+GZJ6oJFMMylAoKbhA9XRFFJm/32lgCFcRshnHOcf4UsOGs0XLI45",
+	"cilYcq1kBgo5aBqOWaIhoJk39EBjhmD+jqVKGdLQDgyQp0ADivMMaEg1Ki4mNKBfBxM5gK+o2ADZxK6f",
+	"sYQ7GVTBl5wriOliEVDkmFjBvWUsgvWn8LMzdCn3ZmWbHN1ChHQR1LyhMyk0dHQHK5ZfxSWn5DmPa/6o",
+	"Wuit3WzfOy7u+iG1v0cDmqukvC/Fe8McGGE1mJyVTtMuL/RCKOHirg86xbrNNn1SPOuZQ6CRC2Zmm48p",
+	"F+9ATHBKw4vezk25+O3CbgJEfImHSNGJ2ap+kzKe2HkcIdUlRWC+q3t2NcCUYvP2e4r5DAIn0+iX9wKU",
+	"Vd9CaWslFfnvWbpv0mhkCg8BQZXhvDBaa10GQAUvf3slV+4K8F5Jh4pnfZKuWNdk0xulpNppRgw6Ujxz",
+	"qUVfspioIkWrJqagNZs0YF21aTmxyai3gIaa9B7cVE6lnxWMaUh/Gq6L+LCo4MOqskubTdXsauIx3cp4",
+	"J6/bDngbkDdW95YVprolp2NH4XgLaAK4qO8c9H4VfrnflkA1q/6QI6h2sHlqO+3uSoilioM1dotgX9y3",
+	"AWoN6bRnz63Hw9ZzfA3boJN3mxvZdgHxGtDQ/R603dIBFUVm6MPotpHQO9i7FNPN7EiKMVcpxF6kjaRM",
+	"gAnr+/btVsf2qX0idOsJGvNjV7lfe2GLv6+ZQh7xjAnsGySZJ6Jr2jSpb8eHJa0dN9iHGnbEFLRsQ1cR",
+	"UhsWRaMp8iRhI8OSqHJoFQnCNXFLjduBvxIzjuC5pd+ZBQ7Vd1c2CBub0j+y+Ec8dX0fp4k6IGY9F2NZ",
+	"uNbrut/oDCI+5hF7/PvxX9AkZuTy+opkTDEiyYhFdwMQsRlmWeKm/SVJljAhzkCRSAqNKn/8J2YkzhUT",
+	"CESS9+/+JL/LXAmYm5UfZXQHqIHh2ap3COlSBg3oDJR29rw4Oz87NxEkMxAs4zSkv9qhgGYMp9ZFQ59f",
+	"hkVGObbDaGr+MaFkvWPONfTaDPtc86pYYmQqlgKC0jT8/EC5MWEKLLZWuax3abz2vst8x5VtDk03ZrHj",
+	"Nmv9L+cXBWchCJcXmfWssXd4q13Er+WDyFODueEeA22Zgyy0ZUhfw5jlCZJVyVgE9OL8vJPSbeXBHe4a",
+	"FPsnOJsNeZoyNachLRyuCSMedkQKwojpOmxY2ASoFg8jZ2imWN9NAOvwFsVEHwvOp/Pshr7wNDB+C1ig",
+	"SWK3AR9VB+HNIqCZ1A0gXku9QrGQ/1LG8yfbUP0asEKqNplq2L44iAEnhasznDAi4N7C24xq3gRq/s0z",
+	"8+kjp97KtIqcH4/knaMaGH0ZJSsqH5bP8gWrl/V8mnJNlMwRyD1PEqIAcyUISxKCUyBGlSYjwHsAYUcs",
+	"8xStEGEiJrYZchMDAjM7TWojDqcyR7I2whjbXFPWVwfPpro0XLKdXIEpQ7eMM//WZXehOQq0hyps1Xfi",
+	"oxS32vPsiRU4P7TmGwNrzWLeyWNrY/r/ceM4x40VpCIm2hxiYZAynhAuZhytKXp7mbITi4u07WRyVcxs",
+	"B3HxcvYdssnGC6gDEMpziDTnL6JlClIAQblqRdocaYerN8Wt/GEf/p5F/1F+fz25tsPC5QNbvNfubja+",
+	"NYSH6jP8Xzgdpcco/bjoFPsLEzJNIbQmheqbzVZu8K81n80RpfHh6+TYwsdxWzVYLP4LAAD//4p898cH",
+	"KgAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
