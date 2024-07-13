@@ -189,14 +189,28 @@ step:
 ```
 
 * Id para identificar os valores criados nesse passo.
-* O pipe é utilizado para definirmos comandos que tenha mais e uma linha.
+* O pipe é utilizado para definirmos comandos que tenham mais de uma linha.
 * SHA recebe os 7 primeiros caracteres do hash do commit
 * Criamos uma variável para adicionar o valor de SHA no output desse step. Todo step tem o output do anterior, uma maneira centralizada de ir passando informações entre os steps.
 
-Após criado e adicionado na variável `GITHUB_OUTPUT`, podemos utilizar para definir a tag da criação da nossa imagem, abaixo temos um exemplo de como acessar esse valor no step de build.
+Após criado e adicionado na variável `GITHUB_OUTPUT`, podemos utilizar para definir a tag da criação da nossa imagem. Abaixo temos um exemplo de como acessar esse valor no step de build.
 
 ```
 - name: Build docker image
   run: docker build -t sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} .
 ```
 
+**Login no container registry**: Para fazer isso, vamos utilizar o action [Docker Login](https://github.com/marketplace/actions/docker-login), nele precisamos passar o usuário e senha(token) do registry que vamos utilizar.
+
+Utilizando o DockerHub passo o nome do meu user e o token é gerado no dockerhub em Account settings > Security > New Access Token.
+
+Para utilizar essas informações, como uma boa prática, vamos utilizar os secrects do github para setar os dados, isso está disponível em Settings(Do repositório) > Security > Actions > New Repository secret.
+
+Abaixo o step criado:
+```
+- name: Login to Docker Hub
+  uses: docker/login-action@v3
+  with:
+    username: ${{ secrets.DOCKERHUB_USERNAME }}
+    password: ${{ secrets.DOCKERHUB_TOKEN }}
+```
