@@ -240,3 +240,16 @@ Revisando, ficará da seguinte forma:
     sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
     sandrolax/api-journey:latest
 ```
+
+**Steps adicionais**: Poderiamos adicionar também um step para realizar os testes unitários, para isso é necessário ter o go na máquina onde roda o job, então precisamos instalar o go e então rodar os testes unitários.
+
+Exemplo abaixo:
+```
+- name: Setup Go
+uses: actions/setup-go@v5
+with:
+    go-version: "1.22.5"
+
+- name: Run tests
+run: go test
+```
