@@ -215,7 +215,7 @@ Abaixo o step criado:
     password: ${{ secrets.DOCKERHUB_TOKEN }}
 ```
 
-**Enviando imagem para container registry**: Criamos o step e adicionamos o docker push, comando que envia a imagem criada para o dockerhub, quanto a tag podemos definila utilizando o comando docker tag.
+**Enviando imagem para container registry**: Criamos o step e adicionamos o docker push, comando que envia a imagem criada para o dockerhub. Quanto à tag podemos defini-la utilizando o comando docker tag.
 
 Step criado:
 ```
@@ -224,4 +224,19 @@ Step criado:
     docker push sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
     docker tag sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} sandrolax/api-journey:latest
     docker push sandrolax/api-journey:latest
+```
+> Boa prática
+
+**Utilizando action para realizar o build e push**: O que fizemos manualmente até o momento funciona, porém, não é a melhor prática e está bem verboso. Vamos utilizar a [action ](https://github.com/marketplace/actions/build-and-push-docker-images) para melhorar essa parte do nosso workflow.
+
+Revisando, ficará da seguinte forma:
+```
+- name: Build and push
+  uses: docker/build-push-action@v6
+  with:
+    context: .
+    push: true
+    tag: |
+    sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
+    sandrolax/api-journey:latest
 ```

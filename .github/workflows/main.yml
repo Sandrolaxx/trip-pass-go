@@ -25,12 +25,21 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tag: |
+            sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
+            sandrolax/api-journey:latest
 
-      - name: Build docker image
-        run: docker build -t sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} .
+      # - name: Build docker image
+      #   run: docker build -t sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} .
         
-      - name: Push to registry
-        run: | 
-          docker push sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
-          docker tag sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} sandrolax/api-journey:latest
-          docker push sandrolax/api-journey:latest
+      # - name: Push to registry
+      #   run: | 
+      #     docker push sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
+      #     docker tag sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} sandrolax/api-journey:latest
+      #     docker push sandrolax/api-journey:latest
