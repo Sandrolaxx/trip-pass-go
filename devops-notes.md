@@ -185,7 +185,7 @@ step:
   id: generate_sha
   run: |
     SHA=$(echo $GITHUB_SHA | head -c7)
-    echo "sha=$SHA" >> $$GITHUB_OUTPUT
+    echo "sha=$SHA" >> $GITHUB_OUTPUT
 ```
 
 * Id para identificar os valores criados nesse passo.

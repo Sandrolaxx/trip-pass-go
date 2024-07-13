@@ -18,7 +18,7 @@ jobs:
         id: generate_sha
         run: |
           SHA=$(echo $GITHUB_SHA | head -c7)
-          echo "sha=$SHA" >> $$GITHUB_OUTPUT
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
 
       - name: Build docker image
         run: docker build -t sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} .
