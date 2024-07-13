@@ -172,3 +172,31 @@ jobs:
 **5º** - Steps são os passos que desejo realizar quando o job processar, no nosso caso fazemos o `Checkout` que é um [actions](https://github.com/actions/checkout)(steps pré-prontos) que basicamente é um check out da branch no workspace, após isso realizamos o step de buildar a imagem da nossa api.
 
 Como o objetivo é em breve enviar para o container registry do dockerhub, precisamos colocar o nosso nome de usuário do dockerhub na frente do nome da imagem.
+
+---
+
+### Melhorias na action
+
+**Gerar TAG imagem com base hash do commit**: Para isso criamos um step anterior a criação da imagem e utilizando a váriavel $GITHUB_SHA que está presente no contexto, tempos acesso ao hash, após isso pegamos os 7 primeiros caracteres.
+
+step:
+```
+- name: Generate SHA
+  id: generate_sha
+  run: |
+    SHA=$(echo $GITHUB_SHA | head -c7)
+    echo "sha=$SHA" >> $$GITHUB_OUTPUT
+```
+
+* Id para identificar os valores criados nesse passo.
+* O pipe é utilizado para definirmos comandos que tenha mais e uma linha.
+* SHA recebe os 7 primeiros caracteres do hash do commit
+* Criamos uma variável para adicionar o valor de SHA no output desse step. Todo step tem o output do anterior, uma maneira centralizada de ir passando informações entre os steps.
+
+Após criado e adicionado na variável `GITHUB_OUTPUT`, podemos utilizar para definir a tag da criação da nossa imagem, abaixo temos um exemplo de como acessar esse valor no step de build.
+
+```
+- name: Build docker image
+  run: docker build -t sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} .
+```
+
