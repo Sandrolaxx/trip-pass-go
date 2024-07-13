@@ -222,6 +222,6 @@ Step criado:
 - name: Push to registry
   run: | 
     docker push sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
-    docker tag sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} sandrolax/api-journey:ubuntu-latest
+    docker tag sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} sandrolax/api-journey:latest
     docker push sandrolax/api-journey:latest
 ```
