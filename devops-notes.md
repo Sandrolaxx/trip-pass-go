@@ -214,3 +214,14 @@ Abaixo o step criado:
     username: ${{ secrets.DOCKERHUB_USERNAME }}
     password: ${{ secrets.DOCKERHUB_TOKEN }}
 ```
+
+**Enviando imagem para container registry**: Criamos o step e adicionamos o docker push, comando que envia a imagem criada para o dockerhub, quanto a tag podemos definila utilizando o comando docker tag.
+
+Step criado:
+```
+- name: Push to registry
+  run: | 
+    docker push sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
+    docker tag sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} sandrolax/api-journey:ubuntu-latest
+    docker push sandrolax/api-journey:latest
+```

@@ -28,3 +28,9 @@ jobs:
 
       - name: Build docker image
         run: docker build -t sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} .
+        
+      - name: Push to registry
+        run: | 
+          docker push sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
+          docker tag sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} sandrolax/api-journey:ubuntu-latest
+          docker push sandrolax/api-journey:latest
