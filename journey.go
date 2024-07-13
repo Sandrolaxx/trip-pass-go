@@ -53,11 +53,11 @@ func run(ctx context.Context) error {
 
 	pool, err := pgxpool.New(ctx, fmt.Sprintf(
 		"user=%s password=%s host=%s port=%s dbname=%s",
-		"pg-test",
-		"1329",
+		os.Getenv("JOURNEY_DATABASE_USER"),
+		os.Getenv("JOURNEY_DATABASE_PASSWORD"),
 		os.Getenv("JOURNEY_DATABASE_HOST"),
 		os.Getenv("JOURNEY_DATABASE_PORT"),
-		"postgres",
+		os.Getenv("JOURNEY_DATABASE_NAME"),
 	),
 	)
 

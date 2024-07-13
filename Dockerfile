@@ -1,6 +1,6 @@
-FROM golang:1.22.5
+FROM golang:1.22.5-alpine as builder
 
-WORKDIR /journey
+WORKDIR /app
 
 COPY go.mod go.sum ./
 
@@ -8,9 +8,14 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-WORKDIR /journey
+RUN go build -o /bin/journey .
 
-RUN go build -o /journey/bin/journey .
+FROM scratch
+
+WORKDIR /app
+
+COPY --from=builder /bin/journey .
 
 EXPOSE 8080
-ENTRYPOINT [ "/journey/bin/journey" ]
+
+ENTRYPOINT [ "./journey" ]

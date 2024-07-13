@@ -1,36 +1,53 @@
 services:
   mailpit:
+    container_name: trip-pass-mailpit
     image: axllent/mailpit:latest
     restart: unless-stopped
     volumes:
       - mailpit:/data
     ports:
-      - 1025:1025
-      - 8025:8025
+      - 1147:1025
+      - 8047:8025
     environment:
       MP_DATABASE: /data/mailpit.db
+    networks:
+      - journey
 
   db:
-    image: postgres:13
+    container_name: trip-pass-db
+    image: postgres:16.2-alpine3.19
     restart: unless-stopped
     ports:
-      - 5446:5432
+      - ${JOURNEY_DATABASE_PORT}:5432
     environment:
-      POSTGRES_USER: pg-test
-      POSTGRES_PASSWORD: 1329
-      POSTGRES_DB: postgres
-    volumes:
-      - db:/var/lib/postgresql/data
+      POSTGRES_USER: ${JOURNEY_DATABASE_USER}
+      POSTGRES_PASSWORD: ${JOURNEY_DATABASE_PASSWORD}
+      POSTGRES_DB: ${JOURNEY_DATABASE_NAME}
+    # para persistência concreta dos dados
+    # volumes:
+    #   - db:/var/lib/postgresql/data
+    networks:
+      - journey
 
   app:
+    container_name: trip-pass-api
     build: .
     ports:
       - 8080:8080
     environment:
-      JOURNEY_DATABASE_PORT: ${JOURNEY_DATABASE_PORT_DOCKER:-5432}
+      JOURNEY_DATABASE_USER: ${JOURNEY_DATABASE_USER}
+      JOURNEY_DATABASE_PASSWORD: ${JOURNEY_DATABASE_PASSWORD}
       JOURNEY_DATABASE_HOST: ${JOURNEY_DATABASE_HOST_DOCKER:-db}
+      JOURNEY_DATABASE_PORT: ${JOURNEY_DATABASE_PORT_DOCKER:-5432}
+      JOURNEY_DATABASE_NAME: ${JOURNEY_DATABASE_NAME}
     depends_on:
       - db
+    networks:
+      - journey
+
+networks:
+  journey:
+    driver: bridge
 
 volumes:
   db:
