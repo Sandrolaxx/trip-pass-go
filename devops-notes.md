@@ -236,7 +236,7 @@ Revisando, ficará da seguinte forma:
   with:
     context: .
     push: true
-    tag: |
+    tags: |
     sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
     sandrolax/api-journey:latest
 ```
