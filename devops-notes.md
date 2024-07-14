@@ -560,3 +560,7 @@ Após adicionado ao cluster podemos acessar em services o svc `argocd-server` e 
 Para realizar a conexão do Argo com o git precisamos de dois arquivos, um para definir o login do argo no repo, que é o [repository.yaml](/devops/deploy-cross/apps/journey/repository.yaml), ele cria um secret com os dados em um formato que o argo consuma e tente realizar o login.
 
 Segundo arquivo é o [argo.yaml](/devops/deploy-cross/apps/journey/argo.yaml) que define a criação de uma aplicação dentro do Argo CD.
+
+### Atenção!!!
+
+O argo só realiza o processo de sync de alterações realizadas no caminho definido no spec.source.path do arquivo argo.yaml, demais alterações em outros diretórios não acarretaram sync.

@@ -43,6 +43,7 @@ jobs:
             sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
             sandrolax/api-journey:latest
 
+      # Maneira manual sem action
       # - name: Build docker image
       #   run: docker build -t sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} .
         
@@ -51,3 +52,15 @@ jobs:
       #     docker push sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }}
       #     docker tag sandrolax/api-journey:${{ steps.generate_sha.outputs.sha }} sandrolax/api-journey:latest
       #     docker push sandrolax/api-journey:latest
+
+      - name: Update image helm
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          branch: release
+          targeBranch: master
+          createPR: true
+          valueFile: "devops/k8s-helm/values.yaml"
+          propertyPath: "image.tag"
+          value: ${{ steps.generate_sha.outputs.sha }}
+          commitChange: true
+          message: "NEW: Update tag in values helm"
