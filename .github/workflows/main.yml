@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-and-push:
+    if: ${{ !contains(github.event.head_commit.message, "Update tag in values helm") }}
     name: "Build and Push"
     runs-on:  ubuntu-latest
 
@@ -56,11 +57,11 @@ jobs:
       - name: Update image helm
         uses: fjogeleit/yaml-update-action@main
         with:
-          branch: release
-          targeBranch: master
-          createPR: true
+          # branch: release
+          # targeBranch: master
+          # createPR: true
           valueFile: "devops/k8s-helm/values.yaml"
           propertyPath: "image.tag"
           value: ${{ steps.generate_sha.outputs.sha }}
           commitChange: true
-          message: "NEW: Update tag in values helm"
+          message: "[skip ci] Update tag in values helm"
