@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Secret
+
+metadata:
+  name: private-repo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+
+stringData:
+  type: git
+  url: git@github.com:Sandrolaxx/trip-pass-go.git
+  sshPrivateKey: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    YOUR CERT HERE
+    -----END OPENSSH PRIVATE KEY-----

@@ -424,3 +424,139 @@ kubectl port-forward svc/journey-service 8080:80 -n journey
 > Sempre importante lembrar de passar o namespace na execução dos comandos
 
 Para mais informações sobre o kube consultar o repositório [study-k8s](https://github.com/Sandrolaxx/study-k8s) e também a [documentação oficial](https://kubernetes.io/docs/home).
+
+## Helm
+
+Helm é um gerenciador de pacotes para Kubernetes que facilita o gerenciamento de aplicativos Kubernetes através do uso de "charts". Um chart é um pacote Helm que contém todos os recursos necessários para rodar um aplicativo, incluindo templates de YAML para configuração e definições de Kubernetes.
+
+* Charts: São pacotes de Helm que contêm todos os arquivos de configuração necessários para executar um aplicativo ou serviço em um cluster Kubernetes. Eles podem ser versionados e armazenados em repositórios.
+
+* Releases: Cada instalação de um chart cria uma "release". Uma release é uma instância de um chart rodando no Kubernetes. Helm gerencia o ciclo de vida dessas releases, permitindo que sejam atualizadas, revertidas e removidas.
+
+* Templates: Helm utiliza arquivos de template para definir a configuração dos recursos do Kubernetes. Esses templates são preenchidos com valores específicos durante a instalação, permitindo a parametrização dos charts.
+
+* Valores (Values): São variáveis que podem ser passadas para templates durante a instalação ou atualização de um chart. Eles permitem a personalização dos recursos Kubernetes definidos pelos templates.
+
+* Repositórios de Charts: Helm utiliza repositórios de charts para armazenar e distribuir charts. Repositórios podem ser públicos ou privados, permitindo a fácil partilha e distribuição de pacotes Helm.
+
+### Instalação
+
+Comando para realizar a instalação:
+
+```
+curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh 
+chmod 700 get_helm.sh 
+./get_helm.sh
+```
+
+Comando para criar as configs do k8s com helm:
+```
+helm create k8s-helm
+```
+
+[Aqui](/devops/k8s-helm/values.yaml) temos um exemplo de um arquivo helm já configurado.
+
+---
+
+## Terraform
+
+Terraform é uma ferramenta de código aberto desenvolvida pela HashiCorp que permite definir, provisionar e gerenciar a infraestrutura de TI de maneira eficiente e automatizada. Utilizando uma linguagem de configuração declarativa chamada HashiCorp Configuration Language (HCL), o Terraform permite que os usuários descrevam a infraestrutura desejada, conhecida como "infraestrutura como código" (IaC). Para mais sobre, acessar [documentação](https://developer.hashicorp.com/terraform?product_intent=terraform).
+
+Utilizadas as configurações criadas e disponibilizadas no [repositório](https://github.com/rocketseat-education/nlw-journey-devops) na pasta iac-cross.
+
+### Instalação
+
+Para instalar é muito simples e a [documentação](https://developer.hashicorp.com/terraform/install) completa é muito rica. Caso utilize linux basta realizar o comando abaixo.
+
+```
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install terraform
+```
+
+### AWS como provider
+
+Para utilizarmos a AWS nos processos de criação de infra com o terraform, precisamos criar nossa conta da AWS, gerar a key e acess_key do IAM, que é um processo bem simples. Para gerar essas credenciais, vamos em Minha conta > Credenciais de segurança > Chaves de acesso, criamos uma nova e adicionamos a var envs.
+
+Export das envs utilizadas pelo tf:
+```
+export AWS_ACCESS_KEY_ID="CREDENCIAL"
+export AWS_SECRET_ACCESS_KEY="CREDENCIAL"
+export AWS_REGION="us-east-2"
+```
+
+Ou também podemos executar e passar essas informações:
+```
+aws config
+```
+
+Claro, também precisamos instalar a CLI da AWS. Podemos fazer isso com o comando abaixo:
+
+```
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
+
+Com isso já temos nosso terraform configurado com nosso AWS.
+
+### Criando infra EKS com tf
+
+Criamos o arquivo `terraform.tfvars` para definir as variáveis necessárias para a configuração do EKS.
+
+terraform.tfvars
+```
+cluster_name="journey"
+desired_size=1
+max_size=2
+min_size=1
+prefix="nlw"
+retention_days=1
+vpc_cidr_block="10.0.0.0/16"
+```
+
+Após isso podemos rodar o comando `terraform plan` que vai verificar tudo o que precisa ser criado em nosso provider com base na infra que definimos no arquivo `main.tf`.
+
+Para iniciar a criação da nossa infra executamos o comando `terraform apply -auto-approve`
+
+O processo para criar todo o que foi definido pode demorar alguns minutos, após finalizado toda a estrutura estará criada no cloud provider.
+
+---
+
+## Deploy EKS
+
+Primeiro precisamos atualizar a configuração co cluster com o comando:
+
+```
+aws eks update-kubeconfig --region us-east-2 --name nlw-journey
+```
+
+Ao realizar esse processo localmente o kubectl vai começar a apontar para o cluster da AWS e não mais o local.
+
+Após realizado esse processo executamos o comando do helm novamente, agora ele vai criar a estrutura que criamos localmente no cluster da AWS, uma vez que o kubectl está apontando para lá.
+
+Com isso fizemos o deploy manualmente no EKS, mas a ideia não é essa, sim automatizar esse fluxo, para fazer isso precisamos entender conceitos de gitops.
+
+---
+
+## GitOps e Argo CD
+
+### GitOps
+
+GitOps é uma abordagem para automação e gerenciamento de infraestrutura e aplicações baseada em princípios de DevOps e infraestrutura como código (IaC). Ela utiliza repositórios Git como a fonte única de verdade para definir e gerenciar a infraestrutura e as aplicações. [O que é GitOps?](https://www.redhat.com/pt-br/topics/devops/what-is-gitops).
+
+### Argo CD
+
+Argo CD é uma ferramenta de entrega contínua (CD) para Kubernetes que utiliza Git como fonte única de verdade para o estado desejado das aplicações. Ele sincroniza automaticamente o estado do cluster Kubernetes com as definições armazenadas em repositórios Git, garantindo que a infraestrutura e as aplicações estejam sempre em conformidade com as configurações especificadas no Git.
+
+Instalação no cluster de maneira simples:
+```
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+
+Após adicionado ao cluster podemos acessar em services o svc `argocd-server` e fazer um port-forward, ao chegar na tela de login a credencial padrão é username `admin` e o password conseguimos encontrar em secrets o `argocd-initial-admin-secret`.
+
+Para realizar a conexão do Argo com o git precisamos de dois arquivos, um para definir o login do argo no repo, que é o [repository.yaml](/devops/deploy-cross/apps/journey/repository.yaml), ele cria um secret com os dados em um formato que o argo consuma e tente realizar o login.
+
+Segundo arquivo é o [argo.yaml](/devops/deploy-cross/apps/journey/argo.yaml) que define a criação de uma aplicação dentro do Argo CD.
