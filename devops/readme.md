@@ -564,3 +564,58 @@ Segundo arquivo é o [argo.yaml](/devops/deploy-cross/apps/journey/argo.yaml) qu
 ### Atenção!!!
 
 O argo só realiza o processo de sync de alterações realizadas no caminho definido no spec.source.path do arquivo argo.yaml, demais alterações em outros diretórios não acarretaram sync.
+
+### Action para trigar o Argo CD
+
+Utilizando a action [YAML Update Action](https://github.com/marketplace/actions/yaml-update-action) podemos realizar a alteração no yaml mapeado pelo Argo CD com isso triggar a troca dos pods.
+
+Action adicionado:
+```yaml
+- name: Update image helm
+uses: fjogeleit/yaml-update-action@main
+with:
+    #Comentar para não criar uma PR ao invés de só commitar na master
+    branch: release
+    targeBranch: master
+    createPR: true
+    valueFile: "devops/k8s-helm/values.yaml"
+    propertyPath: "image.tag"
+    value: ${{ steps.generate_sha.outputs.sha }}
+    commitChange: true
+    message: "[skip ci] Update tag in values helm"
+```
+
+Claro, para não ficar em loop precisamos colocar uma validação:
+```yaml
+jobs:
+  build-and-push:
+    if: ${{ !contains(github.event.head_commit.message, 'Update tag in values helm') }}
+    name: "Build and Push"
+    runs-on:  ubuntu-latest
+```
+
+Agora, sempre que buildado e criada nossa imagem no docker-hub ele vai realizar um commit trocando a tag no gerenciamento com helm, identificada pelo Argo que inicia a troca, o commit realizado pela action é ignorado na próxima trigger da CI por conta da validação.
+
+---
+
+### Observabilidade com Elastic
+
+[Elastic](https://www.elastic.co/pt/) possui uma integração com o Kubernetes, que permite de maneira bem simples adicionar o Elastic a nosso cluster para começar a coletar métricas e dados para observabilidade. 
+
+Basta criar a conta, adicionar a integração, copiar os dados do arquivo deamonset.yaml e aplicar o arquivo com o kubectl.
+
+```
+kubectl apply -f deamonset.yaml
+```
+
+Com isso, o Elastic já começa a coletar os dados do cluster, disponibilizando diversos dashboards de acompanhamento e análise.
+
+### Terraform destroy🚨
+
+Não se esqueça de finalizar os recursos na AWS!
+
+```
+terraform destroy -auto-approve
+```
+
+Após alguns minutos, toda infra será excluída.
