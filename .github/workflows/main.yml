@@ -57,6 +57,7 @@ jobs:
       - name: Update image helm
         uses: fjogeleit/yaml-update-action@main
         with:
+          #Descomentar irá criar uma PR ao invés de só commitar na master
           # branch: release
           # targeBranch: master
           # createPR: true
