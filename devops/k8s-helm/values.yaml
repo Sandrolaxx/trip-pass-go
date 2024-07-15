@@ -1,7 +1,7 @@
 replicaCount: 5
 image:
   repository: sandrolax/api-journey
-  tag: 9b5c3ea
+  tag: 324232a
   pullPolicy: IfNotPresent
   containerPort: 8080
 imagePullSecrets: []
