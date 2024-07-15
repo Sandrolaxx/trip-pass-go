@@ -1,27 +1,20 @@
 replicaCount: 5
-
 image:
   repository: sandrolax/api-journey
-  tag: "b80feaf"
+  tag: e5ba6e9
   pullPolicy: IfNotPresent
   containerPort: 8080
-
-# Utilizado para imagens privadas
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
+nameOverride: ''
+fullnameOverride: ''
 serviceAccount:
   create: true
-  name: ""
-
+  name: ''
 podSecurityContext: {}
 securityContext: {}
-
 service:
   type: LoadBalancer
   port: 80
-
 ingress:
   enabled: false
   annotations: {}
@@ -29,7 +22,6 @@ ingress:
     - host: chart-example.local
       paths: []
   tls: []
-
 resources:
   limits:
     cpu: 200m
@@ -37,25 +29,11 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
-
-#Utilizado para self-healing do k8s, aqui podemos add health-check
-# livenessProbe:
-#   httpGet:
-#     paths: /
-#     port: http
-#readinessProbe:
-#   httpGet:
-#     paths: /
-#     port: http
-
 autoscaling:
   enabled: false
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 75
-  #targetMemoryUtilizationPercentage: 75
-
-#volumes: []
 nodeSelector: {}
 tolerations: []
 affinity: {}
