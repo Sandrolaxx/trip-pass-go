@@ -40,8 +40,8 @@ Este projeto consiste no desenvolvimento de uma aplicação back-end utilizando 
 
 2. **Clone o Repositório**:
    ```bash
-   git clone https://github.com/seu-usuario/nome-do-repositorio.git
-   cd trip-pass-go
+    git clone https://github.com/sandrolaxx/trip-pass-go.git
+    cd trip-pass-go
    ```
 
 3. **Configure as Variáveis de Ambiente**:
